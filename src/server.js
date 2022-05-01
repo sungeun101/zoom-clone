@@ -13,11 +13,14 @@ app.get("/*", (_, res) => res.redirect("/"));
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+const sockets = [];
+
 const handleConnection = (socket) => {
+  sockets.push(socket); // to collect all connections from various browsers
   console.log("Connected to Browser ✅");
   socket.on("close", () => console.log("Disconnected from the Browser ❌"));
   socket.on("message", (message) => {
-    console.log(message.toString("utf8"));
+    sockets.forEach((aSocket) => aSocket.send(message.toString("utf8")));
   });
   socket.send("hello from server!!!");
 };
