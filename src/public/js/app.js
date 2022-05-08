@@ -26,9 +26,10 @@ const handleNicknameSubmit = (event) => {
   event.preventDefault();
   const input = nicknameForm.querySelector("input");
   socket.send(makeMessage("nickname", input.value));
+  input.value = "";
 };
 
-const handleSubmit = (event) => {
+const handleMessageSubmit = (event) => {
   event.preventDefault();
   const input = messageForm.querySelector("input");
   socket.send(makeMessage("new_message", input.value));
@@ -36,4 +37,4 @@ const handleSubmit = (event) => {
 };
 
 nicknameForm.addEventListener("submit", handleNicknameSubmit);
-messageForm.addEventListener("submit", handleSubmit);
+messageForm.addEventListener("submit", handleMessageSubmit);
