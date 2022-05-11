@@ -17,7 +17,7 @@ const showRoom = (msg) => {
   h3.innerText = `Room ${roomName}`;
 };
 
-const showWelcomeMessage = (msg) => {
+const showMessage = (msg) => {
   const ul = room.querySelector("ul");
   const li = document.createElement("li");
   li.innerText = msg;
@@ -37,7 +37,11 @@ const handleRoomEnter = (event) => {
 form.addEventListener("submit", handleRoomEnter);
 
 socket.on("welcome", () => {
-  showWelcomeMessage("Someone just joined!");
+  showMessage("Someone just joined!");
+});
+
+socket.on("bye", () => {
+  showMessage("Someone left;(..bye");
 });
 
 // const socket = new WebSocket(`ws://${window.location.host}`);

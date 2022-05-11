@@ -25,6 +25,9 @@ wsServer.on("connection", (socket) => {
     // 2. backend can send arguments to frontend
     socket.to(roomName).emit("welcome");
   });
+  socket.on("disconnecting", () => {
+    socket.rooms.forEach((room) => socket.to(room).emit("bye"));
+  });
 });
 
 // const wss = new WebSocket.Server({ httpServer });
