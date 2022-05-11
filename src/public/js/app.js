@@ -4,11 +4,16 @@ const welcome = document.getElementById("welcome");
 const form = welcome.querySelector("form");
 const input = form.querySelector("input");
 
+const backendSays = (msg) => {
+  console.log(`backend says : ${msg}`);
+};
+
 const handleRoomSubmit = (event) => {
   event.preventDefault();
-  socket.emit("enter_room", { payload: input.value }, () => {
-    console.log("server is done!");
-  });
+  socket.emit("enter_room", { payload: input.value }, backendSays);
+  // Rules!
+  // first arg -> event name
+  // last arg -> funciton
 };
 
 form.addEventListener("submit", handleRoomSubmit);
