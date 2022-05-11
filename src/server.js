@@ -23,6 +23,7 @@ wsServer.on("connection", (socket) => {
     sayAndShowRoom("I am backend");
     // 1. backend calls a function -> runs on frontend
     // 2. backend can send arguments to frontend
+    socket.to(roomName).emit("welcome");
   });
 });
 

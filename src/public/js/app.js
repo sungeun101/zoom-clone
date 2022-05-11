@@ -6,6 +6,8 @@ const input = form.querySelector("input");
 const room = document.getElementById("room");
 const h3 = room.querySelector("h3");
 
+let roomName;
+
 room.hidden = true;
 
 const showRoom = (msg) => {
@@ -13,6 +15,13 @@ const showRoom = (msg) => {
   welcome.hidden = true;
   room.hidden = false;
   h3.innerText = `Room ${roomName}`;
+};
+
+const showWelcomeMessage = (msg) => {
+  const ul = room.querySelector("ul");
+  const li = document.createElement("li");
+  li.innerText = msg;
+  ul.appendChild(li);
 };
 
 const handleRoomEnter = (event) => {
@@ -26,6 +35,10 @@ const handleRoomEnter = (event) => {
 };
 
 form.addEventListener("submit", handleRoomEnter);
+
+socket.on("welcome", () => {
+  showWelcomeMessage("Someone just joined!");
+});
 
 // const socket = new WebSocket(`ws://${window.location.host}`);
 // const messageList = document.querySelector("ul");
