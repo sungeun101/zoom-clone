@@ -3,20 +3,29 @@ const socket = io();
 const welcome = document.getElementById("welcome");
 const form = welcome.querySelector("form");
 const input = form.querySelector("input");
+const room = document.getElementById("room");
+const h3 = room.querySelector("h3");
 
-const backendSays = (msg) => {
+room.hidden = true;
+
+const showRoom = (msg) => {
   console.log(`backend says : ${msg}`);
+  welcome.hidden = true;
+  room.hidden = false;
+  h3.innerText = `Room ${roomName}`;
 };
 
-const handleRoomSubmit = (event) => {
+const handleRoomEnter = (event) => {
   event.preventDefault();
-  socket.emit("enter_room", { payload: input.value }, backendSays);
+  socket.emit("enter_room", input.value, showRoom);
+  roomName = input.value;
+  input.value = "";
   // Rules!
   // first arg -> event name
   // last arg -> funciton
 };
 
-form.addEventListener("submit", handleRoomSubmit);
+form.addEventListener("submit", handleRoomEnter);
 
 // const socket = new WebSocket(`ws://${window.location.host}`);
 // const messageList = document.querySelector("ul");
