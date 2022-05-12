@@ -10,18 +10,18 @@ let roomName;
 
 room.hidden = true;
 
-const showRoom = (msg) => {
-  console.log(`backend says : ${msg}`);
-  welcome.hidden = true;
-  room.hidden = false;
-  h3.innerText = `Room ${roomName}`;
-};
-
 const showMessage = (msg) => {
   const ul = room.querySelector("ul");
   const li = document.createElement("li");
   li.innerText = msg;
   ul.appendChild(li);
+};
+
+const showRoom = (msg) => {
+  console.log(`backend says : ${msg}`);
+  welcome.hidden = true;
+  room.hidden = false;
+  h3.innerText = `Room ${roomName}`;
 };
 
 const handleRoomEnter = (event) => {
@@ -31,10 +31,27 @@ const handleRoomEnter = (event) => {
   input.value = "";
   // Rules!
   // first arg -> event name
-  // last arg -> funciton
+  // last arg -> callback function(called Acknowledgements ; this callback will be called once the other side acknowledges the event)
 };
 
 form.addEventListener("submit", handleRoomEnter);
+
+const msgForm = room.querySelector("form");
+const msgInput = msgForm.querySelector("input");
+
+const handleMessageSubmit = (event) => {
+  event.preventDefault();
+  const message = msgInput.value;
+  socket.emit(
+    "new_message",
+    message,
+    roomName,
+    showMessage(`You : ${message}`) // for you
+  );
+  msgInput.value = "";
+};
+
+msgForm.addEventListener("submit", handleMessageSubmit);
 
 socket.on("welcome", () => {
   showMessage("Someone just joined!");
@@ -43,6 +60,8 @@ socket.on("welcome", () => {
 socket.on("bye", () => {
   showMessage("Someone left;(..bye");
 });
+
+socket.on("new_message", showMessage); // for other users
 
 // const socket = new WebSocket(`ws://${window.location.host}`);
 // const messageList = document.querySelector("ul");

@@ -28,6 +28,9 @@ wsServer.on("connection", (socket) => {
   socket.on("disconnecting", () => {
     socket.rooms.forEach((room) => socket.to(room).emit("bye"));
   });
+  socket.on("new_message", (msg, roomName, showMsg) => {
+    socket.to(roomName).emit("new_message", msg);
+  });
 });
 
 // const wss = new WebSocket.Server({ httpServer });
