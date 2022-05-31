@@ -14,8 +14,32 @@ app.get("/*", (_, res) => res.redirect("/"));
 const httpServer = http.createServer(app);
 const wsServer = new Server(httpServer);
 
+const getPublicRooms = () => {
+  const {
+    sockets: {
+      adapter: { sids, rooms },
+    },
+  } = wsServer;
+  // sids - private rooms
+  const publicRooms = [];
+  rooms.forEach((_, key) => {
+    if (sids.get(key) === undefined) {
+      // Map.prototype.get() -  returns a specified element from a Map object
+      publicRooms.push(key);
+    }
+    console.log("publicRooms :", publicRooms);
+    return publicRooms;
+  });
+};
+
+const countUserInThisRoom = (roomName) => {
+  return wsServer.sockets.adapter.rooms.get(roomName)?.size;
+};
+
 wsServer.on("connection", (socket) => {
+  socket.nickname = "Anonymous";
   socket.onAny((event) => {
+    console.log(wsServer.sockets.adapter);
     console.log(`socket event : ${event}`);
   });
   socket.on("enter_room", (roomName, sayAndShowRoom) => {
@@ -23,10 +47,18 @@ wsServer.on("connection", (socket) => {
     sayAndShowRoom("I am backend");
     // 1. backend calls a function -> runs on frontend
     // 2. backend can send arguments to frontend
-    socket.to(roomName).emit("welcome");
+    socket
+      .to(roomName)
+      .emit("welcome", socket.nickname, countUserInThisRoom(roomName));
+    wsServer.sockets.emit("room_change", getPublicRooms());
   });
   socket.on("disconnecting", () => {
-    socket.rooms.forEach((room) => socket.to(room).emit("bye"));
+    socket.rooms.forEach((room) =>
+      socket.to(room).emit("bye", socket.nickname)
+    );
+  });
+  socket.on("disconnect", () => {
+    wsServer.sockets.emit("room_change", getPublicRooms());
   });
   socket.on("new_message", (msg, roomName, showMsg) => {
     socket.to(roomName).emit("new_message", msg);
