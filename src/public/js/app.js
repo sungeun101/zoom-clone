@@ -14,14 +14,18 @@ const getMedia = async () => {
       audio: true,
       video: true,
     });
-    console.log(myStream);
     myFace.srcObject = myStream;
   } catch (e) {
     console.log(e);
   }
 };
 
+getMedia();
+
 const handleMuteClick = () => {
+  myStream
+    .getAudioTracks()
+    .forEach((track) => (track.enabled = !track.enabled));
   if (muted) {
     muteBtn.innerText = "Unmute";
     muted = false;
@@ -32,6 +36,9 @@ const handleMuteClick = () => {
 };
 
 const handleCameraClick = () => {
+  myStream
+    .getVideoTracks()
+    .forEach((track) => (track.enabled = !track.enabled));
   if (cameraOn) {
     cameraBtn.innerText = "Turn Camera Off";
     cameraOn = false;
@@ -40,8 +47,6 @@ const handleCameraClick = () => {
     cameraOn = true;
   }
 };
-
-getMedia();
 
 muteBtn.addEventListener("click", handleMuteClick);
 cameraBtn.addEventListener("click", handleCameraClick);
