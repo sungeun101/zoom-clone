@@ -4,10 +4,14 @@ const myFace = document.getElementById("myFace");
 const muteBtn = document.getElementById("mute");
 const cameraBtn = document.getElementById("camera");
 const cameraSelect = document.getElementById("cameras");
+const call = document.getElementById("call");
+
+call.hidden = true;
 
 let myStream;
 let muted = true;
 let cameraOn = false;
+let roomName;
 
 const getMedia = async (selectedCamera) => {
   const initialConstraints = {
@@ -22,7 +26,6 @@ const getMedia = async (selectedCamera) => {
     myStream = await navigator.mediaDevices.getUserMedia(
       selectedCamera ? selectedConstraints : initialConstraints
     );
-
     myFace.srcObject = myStream;
     if (!selectedCamera) {
       await getUserCameras();
@@ -30,14 +33,14 @@ const getMedia = async (selectedCamera) => {
   } catch (e) {
     console.log(e);
   }
+  console.log(selectedCamera);
 };
-
-getMedia();
 
 const getUserCameras = async () => {
   try {
     const devices = await navigator.mediaDevices.enumerateDevices();
     const cameras = devices.filter((device) => device.kind === "videoinput");
+    console.log(cameras);
     cameras.forEach((camera) => {
       const option = document.createElement("option");
       option.value = camera.deviceId;
@@ -77,10 +80,33 @@ const handleCameraClick = () => {
   }
 };
 
-const handleCameraChange = () => {
-  getMedia(cameraSelect.value);
+const handleCameraChange = async () => {
+  await getMedia(cameraSelect.value);
 };
 
 muteBtn.addEventListener("click", handleMuteClick);
 cameraBtn.addEventListener("click", handleCameraClick);
 cameraSelect.addEventListener("input", handleCameraChange);
+
+// Welcome Form
+const welcome = document.getElementById("welcome");
+const welcomeForm = welcome.querySelector("form");
+
+const startMedia = async () => {
+  await getMedia();
+  welcome.hidden = true;
+  call.hidden = false;
+};
+
+const handleWelcomeSubmit = (e) => {
+  e.preventDefault();
+  const input = welcomeForm.querySelector("input");
+  socket.emit("join_room", input.value, startMedia);
+  roomName = input.value;
+  input.value = "";
+};
+
+welcomeForm.addEventListener("submit", handleWelcomeSubmit);
+
+// Socket
+socket.on("welcome", () => console.log("someone joined"));
