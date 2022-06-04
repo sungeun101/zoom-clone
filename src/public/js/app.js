@@ -9,14 +9,24 @@ let myStream;
 let muted = true;
 let cameraOn = false;
 
-const getMedia = async () => {
+const getMedia = async (selectedCamera) => {
+  const initialConstraints = {
+    audio: true,
+    video: { facingMode: "user" },
+  };
+  const selectedConstraints = {
+    audio: true,
+    video: { deviceId: selectedCamera },
+  };
   try {
-    myStream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: true,
-    });
+    myStream = await navigator.mediaDevices.getUserMedia(
+      selectedCamera ? selectedConstraints : initialConstraints
+    );
+
     myFace.srcObject = myStream;
-    await getUserCameras();
+    if (!selectedCamera) {
+      await getUserCameras();
+    }
   } catch (e) {
     console.log(e);
   }
@@ -59,11 +69,18 @@ const handleCameraClick = () => {
   if (cameraOn) {
     cameraBtn.innerText = "Turn Camera Off";
     cameraOn = false;
+    cameraSelect.hidden = false;
   } else {
     cameraBtn.innerText = "Turn Camera On";
     cameraOn = true;
+    cameraSelect.hidden = true;
   }
+};
+
+const handleCameraChange = () => {
+  getMedia(cameraSelect.value);
 };
 
 muteBtn.addEventListener("click", handleMuteClick);
 cameraBtn.addEventListener("click", handleCameraClick);
+cameraSelect.addEventListener("input", handleCameraChange);
