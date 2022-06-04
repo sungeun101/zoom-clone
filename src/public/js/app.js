@@ -3,9 +3,10 @@ const socket = io();
 const myFace = document.getElementById("myFace");
 const muteBtn = document.getElementById("mute");
 const cameraBtn = document.getElementById("camera");
+const cameraSelect = document.getElementById("cameras");
 
 let myStream;
-let muted = false;
+let muted = true;
 let cameraOn = false;
 
 const getMedia = async () => {
@@ -15,12 +16,28 @@ const getMedia = async () => {
       video: true,
     });
     myFace.srcObject = myStream;
+    await getUserCameras();
   } catch (e) {
     console.log(e);
   }
 };
 
 getMedia();
+
+const getUserCameras = async () => {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const cameras = devices.filter((device) => device.kind === "videoinput");
+    cameras.forEach((camera) => {
+      const option = document.createElement("option");
+      option.value = camera.deviceId;
+      option.label = camera.label;
+      cameraSelect.appendChild(option);
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 const handleMuteClick = () => {
   myStream
