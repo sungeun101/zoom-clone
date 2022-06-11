@@ -34,14 +34,12 @@ const getMedia = async (selectedCamera) => {
   } catch (e) {
     console.log(e);
   }
-  console.log(selectedCamera);
 };
 
 const getUserCameras = async () => {
   try {
     const devices = await navigator.mediaDevices.enumerateDevices();
     const cameras = devices.filter((device) => device.kind === "videoinput");
-    console.log(cameras);
     cameras.forEach((camera) => {
       const option = document.createElement("option");
       option.value = camera.deviceId;
@@ -93,17 +91,18 @@ cameraSelect.addEventListener("input", handleCameraChange);
 const welcome = document.getElementById("welcome");
 const welcomeForm = welcome.querySelector("form");
 
-const startMedia = async () => {
+const initCall = async () => {
   await getMedia();
   makeConnection();
   welcome.hidden = true;
   call.hidden = false;
 };
 
-const handleWelcomeSubmit = (e) => {
+const handleWelcomeSubmit = async (e) => {
   e.preventDefault();
   const input = welcomeForm.querySelector("input");
-  socket.emit("join_room", input.value, startMedia);
+  await initCall();
+  socket.emit("join_room", input.value);
   roomName = input.value;
   input.value = "";
 };
@@ -118,8 +117,15 @@ socket.on("welcome", async () => {
   socket.emit("send_offer", offer, roomName);
 });
 
-socket.on("offer", (offer) => {
-  console.log(offer);
+socket.on("offer", async (offer) => {
+  myPeerConnection.setRemoteDescription(offer);
+  const answer = await myPeerConnection.createAnswer();
+  myPeerConnection.setLocalDescription(answer);
+  socket.emit("answer", answer, roomName);
+});
+
+socket.on("answer", async (answer) => {
+  myPeerConnection.setRemoteDescription(answer);
 });
 
 // RTC
